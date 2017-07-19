@@ -76,6 +76,7 @@ void loop() {
     Serial.print(c);
   }
 
+
   if (RFID.isIdAvailable()) {
     tag = RFID.readId();
     LED.setPixelColor(0, 255, 255, 255);LED.show();
@@ -283,12 +284,13 @@ void EraseID() {
 }
 
 void SendHTTP(){
-
-
-if (client.connect("10.10.35.37",50000)){
+ if (client.connect("10.10.35.37",50000)){
    Serial.println("connected"); Serial.println(""); 
-   client.println('GET /zitx_lis?sap-client=100&payload={"ID": "1234567", "status" : "1"} HTTP/1.0');
+   client.println("GET /zitx_lis?sap-client=100&payload=1 HTTP/1.1");
+       client.println("Host: 10.10.35.37");
+    client.println("Connection: close");
    client.println();// important need an empty line here 
+
  } else {
     // kf you didn't get a connection to the server:
     Serial.println("connection failed");
@@ -297,5 +299,10 @@ if (client.connect("10.10.35.37",50000)){
     char c = client.read();
     Serial.print(c);
  }
+   if (!client.connected()) {
+    Serial.println();
+    Serial.println("disconnecting.");
+    client.stop();
+  }
 
 } 
