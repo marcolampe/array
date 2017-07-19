@@ -286,26 +286,32 @@ void EraseID() {
 
 void SendHTTP(){
 
-char PostData ='{\r\n  \"ID\": \"' + Inventory[pos] + ',\r\n  \"state\": \"' + Inventory [pos+1] + '\"\r\n}\r\n';
 
+//String PostData = "{\r\n  \"ID\": \"9801214\",\r\n  \"state\": \"1\"\r\n}\r\n";
 
-if (client.connect("https://p0314-iflmap.hcisbp.eu1.hana.ondemand.com/http/laundryService/start",443)){
-Serial.println("connected");
-  client.println("POST /doit HTTP/1.1");
-  client.println("Host: p0314-iflmap.hcisbp.eu1.hana.ondemand.com"); // or generate from your server variable to not hardwire
+if (client.connect("194.76.45.48",8000)){
+Serial.println("connected"); Serial.println("");
+ client.println("POST http://httpbin.org/post HTTP/1.0");
+ //client.println("POST http://p0314-iflmap.hcisbp.eu1.hana.ondemand.com/http/laundryService/start HTTP/1.0");
+ // client.println("Host: p0314-iflmap.hcisbp.eu1.hana.ondemand.com"); // or generate from your server variable to not hardwire
   client.println("User-Agent: Arduino/uno");
   client.println("authorization: Basic UzAwMTc4MzcwMjY6V1I4NV02WDY=");
   client.println("content-type: application/json");
-  client.print("Content-Length: ");
-  client.println(strlen(PostData));// number of bytes in the payload
+ // client.print("Content-Length: ");
+  //client.println(strlen(PostData));// number of bytes in the payload
   client.println();// important need an empty line here 
-  client.println(PostData);// the payload
-Serial.println (PostData);
+//  client.println(PostData);// the payload
+ client.println("{\n\t\"ID\" : \"1234567\",\r\n\"status\" : \"1\"\n}\n\t");
 
+//Serial.println (PostData);
 
  } else {
     // kf you didn't get a connection to the server:
     Serial.println("connection failed");
-  
-  }
+ }
+ if (client.available()) {
+    char c = client.read();
+    Serial.print(c);
+ }
+
 } 
