@@ -285,26 +285,10 @@ void EraseID() {
 void SendHTTP(){
 
 
-//String PostData = "{\r\n  \"ID\": \"9801214\",\r\n  \"state\": \"1\"\r\n}\r\n";
-
-if (client.connect("10.10.35.37",80)){
-Serial.println("connected"); Serial.println("");
-// client.println("POST http://httpbin.org/post HTTP/1.0");
- client.println("GET /u/34458509/RemoteTest.html HTTP/1.0"); 
- //client.println("POST http://p0314-iflmap.hcisbp.eu1.hana.ondemand.com/http/laundryService/start HTTP/1.0");
- // client.println("Host: p0314-iflmap.hcisbp.eu1.hana.ondemand.com"); // or generate from your server variable to not hardwire
-  client.println("User-Agent: Arduino/uno");
-  client.println("authorization: Basic UzAwMTc4MzcwMjY6V1I4NV02WDY=");
-  client.println("content-type: application/json");
- // client.print("Content-Length: ");
-  //client.println(strlen(PostData));// number of bytes in the payload
-  client.println();// important need an empty line here 
-//  client.println(PostData);// the payload
- //client.println("{\n\t\"ID\" : \"1234567\",\r\n\"status\" : \"1\"\n}\n\t");
-
-
-//Serial.println (PostData);
-
+if (client.connect("10.10.35.37",50000)){
+   Serial.println("connected"); Serial.println(""); 
+   client.println('GET /zitx_lis?sap-client=100&payload={"ID": "1234567", "status" : "1"} HTTP/1.0');
+   client.println();// important need an empty line here 
  } else {
     // kf you didn't get a connection to the server:
     Serial.println("connection failed");
