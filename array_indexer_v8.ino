@@ -20,7 +20,6 @@
 #define LIS_DIRT 8092111
 #define LIS_CLEAN 8023069
 
-
 #define DIRT_IN 1
 #define DIRT_OUT 2
 #define CLEAN_IN 3
