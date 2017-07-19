@@ -1,0 +1,60 @@
+#include <SPI.h>
+#include <Ethernet.h>
+
+EthernetClient client;
+
+byte mac[] = {
+  0x00, 0xAA, 0xBB, 0xCC, 0xDE, 0x02
+};
+
+void setup() {
+ int Inventory[2]= {1234567,1};
+ int pos =0;
+  Serial.begin(9600);
+  Serial.println("Serial Ready");
+
+if (Ethernet.begin(mac) == 0) {
+    Serial.println("Failed to configure Ethernet using DHCP");
+    // no point in carrying on, so do nothing forevermore:
+    for (;;)
+      ;
+  }
+  Serial.println("Ready");
+  // print your local IP address:
+   printIPAddress();
+
+
+}
+
+void loop() {
+  if (client.available()) {
+    char c = client.read();
+    Serial.print(c);
+  }
+
+}
+void SendHTTP(){
+
+char PostData ='{\r\n  \"ID\": \"' + Inventory[pos] + ',\r\n  \"state\": \"' + Inventory [pos+1] + '\"\r\n}\r\n';
+
+
+if (client.connect("https://p0314-iflmap.hcisbp.eu1.hana.ondemand.com/http/laundryService/start",443)){
+Serial.println("connected");
+  client.println("POST /doit HTTP/1.1");
+  client.println("Host: p0314-iflmap.hcisbp.eu1.hana.ondemand.com"); // or generate from your server variable to not hardwire
+  client.println("User-Agent: Arduino/uno");
+  client.println("authorization: Basic UzAwMTc4MzcwMjY6V1I4NV02WDY=");
+  client.println("content-type: application/json");
+  client.print("Content-Length: ");
+  client.println(strlen(PostData));// number of bytes in the payload
+  client.println();// important need an empty line here 
+  client.println(PostData);// the payload
+Serial.println (PostData);
+
+
+ } else {
+    // kf you didn't get a connection to the server:
+    Serial.println("connection failed");
+  
+  }
+} 
