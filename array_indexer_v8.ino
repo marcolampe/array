@@ -31,7 +31,8 @@ RFIDTag tag;
 
 Adafruit_NeoPixel LED = Adafruit_NeoPixel(1, 8, NEO_GRB + NEO_KHZ800);
 
-//EthernetClient client;
+EthernetClient client;
+
 byte mac[] = {
   0x00, 0xAA, 0xBB, 0xCC, 0xDE, 0x02
 };
@@ -43,6 +44,8 @@ int ptr = 0;
 int count = 0;
 int where = 0;
 int maintenance = 0;
+long ADD_ID = 0;
+int ADD_STATUS = 0;
 
 int redPin = 4;
 int greenPin = 3;
@@ -53,21 +56,29 @@ void setup() {
   Serial.begin(9600);
   Serial.println("Serial Ready");
 
-//  if (Ethernet.begin(mac) == 0) {
-//    Serial.println("Failed to configure Ethernet using DHCP");
-//    // no point in carrying on, so do nothing forevermore:
-//    for (;;)
-//      ;
-//  }
-//  Serial.println("Ready");
-//  // print your local IP address:
-//   printIPAddress();
+if (Ethernet.begin(mac) == 0) {
+    Serial.println("Failed to configure Ethernet using DHCP");
+    // no point in carrying on, so do nothing forevermore:
+    for (;;)
+      ;
+  }
+  Serial.println("Ready");
+  // print your local IP address:
+   printIPAddress();
+
    LED.begin();
    LED.show(); // Initialize all pixels to 'off'
 }
 
 
 void loop() {
+
+  if (client.available()) {
+    char c = client.read();
+    Serial.print(c);
+  }
+
+
   if (RFID.isIdAvailable()) {
     tag = RFID.readId();
     LED.setPixelColor(0, 255, 255, 255);LED.show();
@@ -112,6 +123,9 @@ void loop() {
         Serial.println("Adding ID");
         maintenance = 0;
         AddID(found, ptr);
+        Serial.print("ID: ");Serial.println(ADD_ID);
+        Serial.print("Status: ");Serial.println(ADD_STATUS);
+        SendHTTP(Inventory[pos], Inventory[pos+1]);
       } else if ((found == 1)&& (maintenance == 0)) {
         Serial.println("Updating ID");
         maintenance = 0;
@@ -123,8 +137,6 @@ void loop() {
     }
   }
 }
-
-
 
 int CheckID(long ID) {
   long comp = ID;
@@ -194,6 +206,11 @@ void AddID(int value, int ptr) {
       delay(500);
       LED.setPixelColor(0, 0, 0, 0);LED.show();
 
+      long ADD_ID = Inventory[pos];
+      int ADD_STATUS = Inventory[pos+1];
+              Serial.print("ID: ");Serial.println(ADD_ID);
+        Serial.print("Status: ");Serial.println(ADD_STATUS);
+        SendHTTP(ADD_ID, ADD_STATUS);
       if (tag.id == TAG_OF_DEAD) {
         pos = 0;
         ptr = 1;
@@ -202,9 +219,11 @@ void AddID(int value, int ptr) {
         ptr = 1;
       }
 
-
     } else {
       Serial.println("Array is full");
+      LED.setPixelColor(0, 255, 0, 0);LED.show();
+      delay(500);
+      LED.setPixelColor(0, 255, 0, 0);LED.show();
     }
   }
 }
@@ -226,6 +245,12 @@ int UpdateID(int where) { // Update
   }
   Serial.print("AFTER: Inventory Pos "); Serial.print("["); Serial.print(where); Serial.print("]: "); Serial.println(Inventory[where]);
   Serial.print("AFTER: Inventory Pos "); Serial.print("["); Serial.print(where + 1); Serial.print("]: "); Serial.println(Inventory[where + 1]);
+
+      long ADD_ID = Inventory[where];
+      int ADD_STATUS = Inventory[where+1];
+        Serial.print("ID: ");Serial.println(ADD_ID);
+        Serial.print("Status: ");Serial.println(ADD_STATUS);
+        SendHTTP(ADD_ID, ADD_STATUS);
   
   if ((Inventory[where+1] == 2) || (Inventory[where+1] == 4)){
     Cleanup();
@@ -275,3 +300,34 @@ void EraseID() {
       delay(500);
       LED.setPixelColor(0, 0, 0, 0);LED.show();
 }
+
+int SendHTTP(long ID, int status){
+ if (client.connect("10.10.35.37",50000)){
+   Serial.println("connected"); Serial.println(""); 
+
+   client.print("GET /zitx_lis?sap-client=100&payload=");
+   client.print("%7B%22ID%22%3A%20%22");
+   client.print(ID);
+   client.print("%22%2C%20%22status%22%20%3A%20%22");
+   client.print(status);
+   client.print("%22%7D");
+   client.println(" HTTP/1.1");
+   client.println("Host: 10.10.35.37");
+   client.println("Connection: close");
+   client.println();// important need an empty line here 
+
+ } else {
+    // kf you didn't get a connection to the server:
+    Serial.println("connection failed");
+ }
+ if (client.available()) {
+    char c = client.read();
+    Serial.print(c);
+ }
+   if (!client.connected()) {
+    Serial.println();
+    Serial.println("disconnecting.");
+    client.stop();
+  }
+
+} 
