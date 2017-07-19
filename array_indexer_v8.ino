@@ -286,7 +286,17 @@ void EraseID() {
 void SendHTTP(){
  if (client.connect("10.10.35.37",50000)){
    Serial.println("connected"); Serial.println(""); 
-   client.println("GET /zitx_lis?sap-client=100&payload=1 HTTP/1.1");
+
+   client.print("GET /zitx_lis?sap-client=100&payload=");
+   client.print("%7B%22ID%22%3A%20%22");
+   client.print(Inventory[pos]);
+   client.print("%22%2C%20%22status%22%20%3A%20%22");
+   client.print(Inventory[pos+1]);
+   client.print("%22%7D");
+  // client.print("{ ");
+  // client.print("ID : " + tag.id);
+  // client.print(" }");
+   client.println(" HTTP/1.1");
        client.println("Host: 10.10.35.37");
     client.println("Connection: close");
    client.println();// important need an empty line here 
