@@ -31,7 +31,8 @@ RFIDTag tag;
 
 Adafruit_NeoPixel LED = Adafruit_NeoPixel(1, 8, NEO_GRB + NEO_KHZ800);
 
-//EthernetClient client;
+EthernetClient client;
+
 byte mac[] = {
   0x00, 0xAA, 0xBB, 0xCC, 0xDE, 0x02
 };
@@ -53,21 +54,28 @@ void setup() {
   Serial.begin(9600);
   Serial.println("Serial Ready");
 
-//  if (Ethernet.begin(mac) == 0) {
-//    Serial.println("Failed to configure Ethernet using DHCP");
-//    // no point in carrying on, so do nothing forevermore:
-//    for (;;)
-//      ;
-//  }
-//  Serial.println("Ready");
-//  // print your local IP address:
-//   printIPAddress();
+if (Ethernet.begin(mac) == 0) {
+    Serial.println("Failed to configure Ethernet using DHCP");
+    // no point in carrying on, so do nothing forevermore:
+    for (;;)
+      ;
+  }
+  Serial.println("Ready");
+  // print your local IP address:
+   printIPAddress();
+
    LED.begin();
    LED.show(); // Initialize all pixels to 'off'
 }
 
 
 void loop() {
+
+  if (client.available()) {
+    char c = client.read();
+    Serial.print(c);
+  }
+
   if (RFID.isIdAvailable()) {
     tag = RFID.readId();
     LED.setPixelColor(0, 255, 255, 255);LED.show();
@@ -201,7 +209,7 @@ void AddID(int value, int ptr) {
         pos = pos + 2;
         ptr = 1;
       }
-
+         SendHTTP();
 
     } else {
       Serial.println("Array is full");
@@ -277,24 +285,27 @@ void EraseID() {
 }
 
 void SendHTTP(){
-/*
-Sending request should look like this:
 
-POST /http/laundryService/start HTTP/1.1
-Host: p0314-iflmap.hcisbp.eu1.hana.ondemand.com
-Content-Type: application/json
-Authorization: Basic UzAwMTc4MzcwMjY6V1I4NV02WDY=
-Cache-Control: no-cache
-Postman-Token: ba8c315a-0f79-2597-e9a1-a7e17a1f6cbb
-
-{
-  "ID": "9801214",
-  "state": "1"
-}
+char PostData ='{\r\n  \"ID\": \"' + Inventory[pos] + ',\r\n  \"state\": \"' + Inventory [pos+1] + '\"\r\n}\r\n';
 
 
+if (client.connect("https://p0314-iflmap.hcisbp.eu1.hana.ondemand.com/http/laundryService/start",443)){
+Serial.println("connected");
+  client.println("POST /doit HTTP/1.1");
+  client.println("Host: p0314-iflmap.hcisbp.eu1.hana.ondemand.com"); // or generate from your server variable to not hardwire
+  client.println("User-Agent: Arduino/uno");
+  client.println("authorization: Basic UzAwMTc4MzcwMjY6V1I4NV02WDY=");
+  client.println("content-type: application/json");
+  client.print("Content-Length: ");
+  client.println(strlen(PostData));// number of bytes in the payload
+  client.println();// important need an empty line here 
+  client.println(PostData);// the payload
+Serial.println (PostData);
 
 
-*/
-
-}
+ } else {
+    // kf you didn't get a connection to the server:
+    Serial.println("connection failed");
+  
+  }
+} 
