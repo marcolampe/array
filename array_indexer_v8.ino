@@ -275,3 +275,26 @@ void EraseID() {
       delay(500);
       LED.setPixelColor(0, 0, 0, 0);LED.show();
 }
+
+void SendHTTP(){
+/*
+Sending request should look like this:
+
+POST /http/laundryService/start HTTP/1.1
+Host: p0314-iflmap.hcisbp.eu1.hana.ondemand.com
+Content-Type: application/json
+Authorization: Basic UzAwMTc4MzcwMjY6V1I4NV02WDY=
+Cache-Control: no-cache
+Postman-Token: ba8c315a-0f79-2597-e9a1-a7e17a1f6cbb
+
+{
+  "ID": "9801214",
+  "state": "1"
+}
+
+
+
+
+*/
+
+}
