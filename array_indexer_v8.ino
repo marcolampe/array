@@ -53,21 +53,28 @@ int bluePin = 2;
 
  
 void setup() {
+  LED.begin();
+  LED.show(); // Initialize all pixels to 'off'
+  
   Serial.begin(9600);
+  LED.setPixelColor(0, 255, 0, 0);LED.show();
   Serial.println("Serial Ready");
 
 if (Ethernet.begin(mac) == 0) {
     Serial.println("Failed to configure Ethernet using DHCP");
     // no point in carrying on, so do nothing forevermore:
+    LED.setPixelColor(0, 0, 0, 0);LED.show();delay(1000);
+    LED.setPixelColor(0, 255, 0, 0);LED.show();delay(1000);
+    LED.setPixelColor(0, 0, 0, 0);LED.show();delay(1000);
+    LED.setPixelColor(0, 255, 0, 0);LED.show();delay(1000);
     for (;;)
       ;
   }
+  delay(1000);
   Serial.println("Ethernet Ready");
   // print your local IP address:
   // printIPAddress();
-
-   LED.begin();
-   LED.show(); // Initialize all pixels to 'off'
+LED.setPixelColor(0, 0, 0, 0);LED.show();
 }
 
 
@@ -121,7 +128,7 @@ void loop() {
         UpdateID(where);
       }
       maintenance = 0;
-      table();
+      //table();
 
     }
   }
