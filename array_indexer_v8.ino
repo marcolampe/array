@@ -47,10 +47,6 @@ int maintenance = 0;
 long ADD_ID = 0;
 int ADD_STATUS = 0;
 
-int redPin = 4;
-int greenPin = 3;
-int bluePin = 2;
-
  
 void setup() {
   LED.begin();
@@ -72,23 +68,24 @@ if (Ethernet.begin(mac) == 0) {
   }
   delay(1000);
   Serial.println("Ethernet Ready");
-  // print your local IP address:
-  // printIPAddress();
-LED.setPixelColor(0, 0, 0, 0);LED.show();
+  Serial.println(Ethernet.localIP());
+
+ LED.setPixelColor(0, 0, 0, 0);LED.show();
 }
 
 
 void loop() {
 
+   
   if (client.available()) {
     char c = client.read();
     Serial.print(c);
-  }
-
+  }  
 
   if (RFID.isIdAvailable()) {
     tag = RFID.readId();
     LED.setPixelColor(0, 255, 255, 255);LED.show();
+    Serial.println("");
     Serial.println("------------------");
     Serial.print("LOOP: ID:       "); Serial.println(tag.id);
     Serial.println("------------------");
@@ -141,7 +138,7 @@ int CheckID(long ID) {
   int me = 0;
   int maint = 0;
   for (int i = 0; i < 6; i++) {
-    Serial.print("CHECKID: Inventory["); Serial.print(i); Serial.print("]: ");
+   // Serial.print("CHECKID: Inventory["); Serial.print(i); Serial.print("]: ");
 
     if (comp == Inventory[i]) {
       Serial.println(": FOUND: Found in CheckID");
@@ -151,7 +148,7 @@ int CheckID(long ID) {
       count += 1;
       me = i;
     } else {
-      Serial.println(": NOT FOUND: Nothing found in CheckID");
+      //Serial.println(": NOT FOUND: Nothing found in CheckID");
       if ((tag.id == TAG_OF_DEAD) || (tag.id == LIS_DIRT) || (tag.id == LIS_CLEAN)){
       maint = 1;
       found = 2;
@@ -268,16 +265,6 @@ void Cleanup(){
   }
 } */
 
-/* void printIPAddress(){
-  Serial.print("My IP address: ");
-  for (byte thisByte = 0; thisByte < 4; thisByte++) {
-    // print the value of each byte of the IP address:
-    Serial.print(Ethernet.localIP()[thisByte], DEC);
-    Serial.print(".");
-  }
-
-  Serial.println();
-} */
 
 void EraseID() {
   //cleanup the array with a transponder --> only debugging
@@ -294,9 +281,20 @@ void EraseID() {
 }
 
 int SendHTTP(long ID, int status){
- if (client.connect("10.10.35.37",50000)){
-   Serial.println("connected"); Serial.println(""); 
 
+/*  if (Ethernet.begin(mac) == 0) {
+    Serial.println("Failed to configure Ethernet using DHCP");
+    // no point in carrying on, so do nothing forevermore:
+    LED.setPixelColor(0, 0, 0, 0);LED.show();delay(1000);
+    LED.setPixelColor(0, 255, 0, 0);LED.show();delay(1000);
+    LED.setPixelColor(0, 0, 0, 0);LED.show();delay(1000);
+    LED.setPixelColor(0, 255, 0, 0);LED.show();delay(1000);
+  }
+
+    LED.setPixelColor(0, 0, 0, 0);LED.show(); */
+
+  if (client.connect("10.10.35.37",50000)){
+   Serial.println("connected"); Serial.println(""); 
    client.print("GET /zitx_lis?sap-client=100&payload=");
    client.print("%7B%22ID%22%3A%20%22");
    client.print(ID);
@@ -307,19 +305,20 @@ int SendHTTP(long ID, int status){
    client.println("Host: 10.10.35.37");
    client.println("Connection: close");
    client.println();// important need an empty line here 
-
- } else {
+  } else {
     // kf you didn't get a connection to the server:
     Serial.println("connection failed");
- }
- if (client.available()) {
+    client.stop();
+  }
+/* 
+  if (client.available()) {
     char c = client.read();
     Serial.print(c);
- }
-   if (!client.connected()) {
+  } */
+/*     if (!client.connected()) {
     Serial.println();
     Serial.println("disconnecting.");
     client.stop();
-  }
+  }  */
 
 } 
