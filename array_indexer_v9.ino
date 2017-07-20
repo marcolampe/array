@@ -2,10 +2,12 @@
 
  /*   Loundry track Information System (LIS)                                                                                                                                                                                            
   *                                                                                                                                                                                                 
-  *                                                                                                                                                                                                 
-  *                                                                                                                                                                                                 
+  *     v.2017-07-20                                                                                                                                                                                             
+  *     Author: Mlampe                                                                                                                                                                                            
   *                                                                                                                                                                                                
   */
+
+
 #include <SoftwareSerial.h>
 #include <SeeedRFIDLib.h> 
 #include <SPI.h>
@@ -118,7 +120,7 @@ void loop() {
         Serial.println("Adding ID");
         maintenance = 0;
         AddID(found, ptr);
-        SendHTTP(Inventory[pos], Inventory[pos+1]);
+        //SendHTTP(Inventory[pos], Inventory[pos+1]); 
       } else if ((found == 1)&& (maintenance == 0)) {
         Serial.println("Updating ID");
         maintenance = 0;
