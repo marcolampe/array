@@ -7,7 +7,7 @@
   *                                                                                                                                                                                                
   */
 #include <SoftwareSerial.h>
-#include <SeeedRFIDLib.h> //Lib: https://github.com/johannrichard/SeeedRFIDLib
+#include <SeeedRFIDLib.h> 
 #include <SPI.h>
 #include <Ethernet.h>
 #include <Adafruit_NeoPixel.h>
@@ -25,7 +25,7 @@
 #define CLEAN_IN 3
 #define CLEAN_OUT 4
 
-//diameter 28.65
+
 SeeedRFIDLib RFID(RFID_RX_PIN, RFID_TX_PIN);
 RFIDTag tag;
 
@@ -62,9 +62,9 @@ if (Ethernet.begin(mac) == 0) {
     for (;;)
       ;
   }
-  Serial.println("Ready");
+  Serial.println("Ethernet Ready");
   // print your local IP address:
-   printIPAddress();
+  // printIPAddress();
 
    LED.begin();
    LED.show(); // Initialize all pixels to 'off'
@@ -84,10 +84,8 @@ void loop() {
     LED.setPixelColor(0, 255, 255, 255);LED.show();
     Serial.println("------------------");
     Serial.print("LOOP: ID:       "); Serial.println(tag.id);
-    Serial.print("LOOP: ID (raw): "); Serial.println(tag.raw);
     Serial.println("------------------");
     LED.setPixelColor(0, 0, 0, 0);LED.show();
-
 
     if (tag.id == TAG_OF_DEAD) {
       EraseID();
@@ -111,20 +109,11 @@ void loop() {
     int found = CheckID(tag.id);
 
     if (tag.id > VALID_TAG_ID_RANGE) {
-      Serial.println("LOOP: ");
-      Serial.print("  found: ");Serial.println(found);
-      Serial.print("  pos: "); Serial.println(pos);
-      Serial.print("  ptr: "); Serial.println(ptr);
-      Serial.print("  count: "); Serial.println(count);
-      Serial.print("  where: "); Serial.println(where);
-      Serial.print("  maintenance: "); Serial.println(maintenance);
 
       if ((found == 0) && (maintenance == 0)) {
         Serial.println("Adding ID");
         maintenance = 0;
         AddID(found, ptr);
-        Serial.print("ID: ");Serial.println(ADD_ID);
-        Serial.print("Status: ");Serial.println(ADD_STATUS);
         SendHTTP(Inventory[pos], Inventory[pos+1]);
       } else if ((found == 1)&& (maintenance == 0)) {
         Serial.println("Updating ID");
@@ -206,10 +195,8 @@ void AddID(int value, int ptr) {
       delay(500);
       LED.setPixelColor(0, 0, 0, 0);LED.show();
 
-      long ADD_ID = Inventory[pos];
-      int ADD_STATUS = Inventory[pos+1];
-              Serial.print("ID: ");Serial.println(ADD_ID);
-        Serial.print("Status: ");Serial.println(ADD_STATUS);
+        long ADD_ID = Inventory[pos];
+        int ADD_STATUS = Inventory[pos+1];
         SendHTTP(ADD_ID, ADD_STATUS);
       if (tag.id == TAG_OF_DEAD) {
         pos = 0;
@@ -248,9 +235,7 @@ int UpdateID(int where) { // Update
 
       long ADD_ID = Inventory[where];
       int ADD_STATUS = Inventory[where+1];
-        Serial.print("ID: ");Serial.println(ADD_ID);
-        Serial.print("Status: ");Serial.println(ADD_STATUS);
-        SendHTTP(ADD_ID, ADD_STATUS);
+      SendHTTP(ADD_ID, ADD_STATUS);
   
   if ((Inventory[where+1] == 2) || (Inventory[where+1] == 4)){
     Cleanup();
@@ -269,14 +254,14 @@ void Cleanup(){
   
 }
 
-void table () {
+/* void table () {
   Serial.println("TABLE:");
   for (int i = 0; i < 6; i++) {
     Serial.print ("  Inventory at Pos "); Serial.print (i); Serial.print(" : Value: "); Serial.println(Inventory[i]);
   }
-}
+} */
 
-void printIPAddress(){
+/* void printIPAddress(){
   Serial.print("My IP address: ");
   for (byte thisByte = 0; thisByte < 4; thisByte++) {
     // print the value of each byte of the IP address:
@@ -285,7 +270,7 @@ void printIPAddress(){
   }
 
   Serial.println();
-}
+} */
 
 void EraseID() {
   //cleanup the array with a transponder --> only debugging
