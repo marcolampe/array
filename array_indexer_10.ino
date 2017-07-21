@@ -283,20 +283,10 @@ void EraseID() {
 }
 
 int SendHTTP(long ID, int status){
-
-/*  if (Ethernet.begin(mac) == 0) {
-    Serial.println("Failed to configure Ethernet using DHCP");
-    // no point in carrying on, so do nothing forevermore:
-    LED.setPixelColor(0, 0, 0, 0);LED.show();delay(1000);
-    LED.setPixelColor(0, 255, 0, 0);LED.show();delay(1000);
-    LED.setPixelColor(0, 0, 0, 0);LED.show();delay(1000);
-    LED.setPixelColor(0, 255, 0, 0);LED.show();delay(1000);
-  }
-
-    LED.setPixelColor(0, 0, 0, 0);LED.show(); */
+  client.stop();
 
   if (client.connect("10.10.35.37",50000)){
-   Serial.println("connected"); Serial.println(""); 
+   Serial.println("connecting..."); Serial.println(""); 
    client.print("GET /zitx_lis?sap-client=100&payload=");
    client.print("%7B%22ID%22%3A%20%22");
    client.print(ID);
@@ -310,17 +300,6 @@ int SendHTTP(long ID, int status){
   } else {
     // kf you didn't get a connection to the server:
     Serial.println("connection failed");
-    client.stop();
+ 
   }
-/* 
-  if (client.available()) {
-    char c = client.read();
-    Serial.print(c);
-  } */
-/*     if (!client.connected()) {
-    Serial.println();
-    Serial.println("disconnecting.");
-    client.stop();
-  }  */
-
 } 
