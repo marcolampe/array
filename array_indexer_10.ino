@@ -2,12 +2,14 @@
 
  /*   Loundry track Information System (LIS)                                                                                                                                                                                            
   *                                                                                                                                                                                                 
-  *                                                                                                                                                                                                 
-  *                                                                                                                                                                                                 
+  *     v.2017-07-20                                                                                                                                                                                             
+  *     Author: Mlampe                                                                                                                                                                                            
   *                                                                                                                                                                                                
   */
+
+
 #include <SoftwareSerial.h>
-#include <SeeedRFIDLib.h> //Lib: https://github.com/johannrichard/SeeedRFIDLib
+#include <SeeedRFIDLib.h> 
 #include <SPI.h>
 #include <Ethernet.h>
 #include <Adafruit_NeoPixel.h>
@@ -25,7 +27,7 @@
 #define CLEAN_IN 3
 #define CLEAN_OUT 4
 
-//diameter 28.65
+
 SeeedRFIDLib RFID(RFID_RX_PIN, RFID_TX_PIN);
 RFIDTag tag;
 
@@ -47,47 +49,49 @@ int maintenance = 0;
 long ADD_ID = 0;
 int ADD_STATUS = 0;
 
-int redPin = 4;
-int greenPin = 3;
-int bluePin = 2;
-
  
 void setup() {
+  LED.begin();
+  LED.show(); // Initialize all pixels to 'off'
+  
   Serial.begin(9600);
+  LED.setPixelColor(0, 255, 0, 0);LED.show();
   Serial.println("Serial Ready");
 
 if (Ethernet.begin(mac) == 0) {
     Serial.println("Failed to configure Ethernet using DHCP");
     // no point in carrying on, so do nothing forevermore:
+    LED.setPixelColor(0, 0, 0, 0);LED.show();delay(1000);
+    LED.setPixelColor(0, 255, 0, 0);LED.show();delay(1000);
+    LED.setPixelColor(0, 0, 0, 0);LED.show();delay(1000);
+    LED.setPixelColor(0, 255, 0, 0);LED.show();delay(1000);
     for (;;)
       ;
   }
-  Serial.println("Ready");
-  // print your local IP address:
-   printIPAddress();
+  delay(1000);
+  Serial.println("Ethernet Ready");
+  Serial.println(Ethernet.localIP());
 
-   LED.begin();
-   LED.show(); // Initialize all pixels to 'off'
+ LED.setPixelColor(0, 0, 0, 0);LED.show();
 }
 
 
 void loop() {
 
+   
   if (client.available()) {
     char c = client.read();
     Serial.print(c);
-  }
-
+  }  
 
   if (RFID.isIdAvailable()) {
     tag = RFID.readId();
     LED.setPixelColor(0, 255, 255, 255);LED.show();
+    Serial.println("");
     Serial.println("------------------");
     Serial.print("LOOP: ID:       "); Serial.println(tag.id);
-    Serial.print("LOOP: ID (raw): "); Serial.println(tag.raw);
     Serial.println("------------------");
     LED.setPixelColor(0, 0, 0, 0);LED.show();
-
 
     if (tag.id == TAG_OF_DEAD) {
       EraseID();
@@ -111,28 +115,19 @@ void loop() {
     int found = CheckID(tag.id);
 
     if (tag.id > VALID_TAG_ID_RANGE) {
-      Serial.println("LOOP: ");
-      Serial.print("  found: ");Serial.println(found);
-      Serial.print("  pos: "); Serial.println(pos);
-      Serial.print("  ptr: "); Serial.println(ptr);
-      Serial.print("  count: "); Serial.println(count);
-      Serial.print("  where: "); Serial.println(where);
-      Serial.print("  maintenance: "); Serial.println(maintenance);
 
       if ((found == 0) && (maintenance == 0)) {
         Serial.println("Adding ID");
         maintenance = 0;
         AddID(found, ptr);
-        Serial.print("ID: ");Serial.println(ADD_ID);
-        Serial.print("Status: ");Serial.println(ADD_STATUS);
-        SendHTTP(Inventory[pos], Inventory[pos+1]);
+        //SendHTTP(Inventory[pos], Inventory[pos+1]); 
       } else if ((found == 1)&& (maintenance == 0)) {
         Serial.println("Updating ID");
         maintenance = 0;
         UpdateID(where);
       }
       maintenance = 0;
-      table();
+      //table();
 
     }
   }
@@ -145,7 +140,7 @@ int CheckID(long ID) {
   int me = 0;
   int maint = 0;
   for (int i = 0; i < 6; i++) {
-    Serial.print("CHECKID: Inventory["); Serial.print(i); Serial.print("]: ");
+   // Serial.print("CHECKID: Inventory["); Serial.print(i); Serial.print("]: ");
 
     if (comp == Inventory[i]) {
       Serial.println(": FOUND: Found in CheckID");
@@ -155,7 +150,7 @@ int CheckID(long ID) {
       count += 1;
       me = i;
     } else {
-      Serial.println(": NOT FOUND: Nothing found in CheckID");
+      //Serial.println(": NOT FOUND: Nothing found in CheckID");
       if ((tag.id == TAG_OF_DEAD) || (tag.id == LIS_DIRT) || (tag.id == LIS_CLEAN)){
       maint = 1;
       found = 2;
@@ -206,10 +201,8 @@ void AddID(int value, int ptr) {
       delay(500);
       LED.setPixelColor(0, 0, 0, 0);LED.show();
 
-      long ADD_ID = Inventory[pos];
-      int ADD_STATUS = Inventory[pos+1];
-              Serial.print("ID: ");Serial.println(ADD_ID);
-        Serial.print("Status: ");Serial.println(ADD_STATUS);
+        long ADD_ID = Inventory[pos];
+        int ADD_STATUS = Inventory[pos+1];
         SendHTTP(ADD_ID, ADD_STATUS);
       if (tag.id == TAG_OF_DEAD) {
         pos = 0;
@@ -248,9 +241,7 @@ int UpdateID(int where) { // Update
 
       long ADD_ID = Inventory[where];
       int ADD_STATUS = Inventory[where+1];
-        Serial.print("ID: ");Serial.println(ADD_ID);
-        Serial.print("Status: ");Serial.println(ADD_STATUS);
-        SendHTTP(ADD_ID, ADD_STATUS);
+      SendHTTP(ADD_ID, ADD_STATUS);
   
   if ((Inventory[where+1] == 2) || (Inventory[where+1] == 4)){
     Cleanup();
@@ -269,23 +260,13 @@ void Cleanup(){
   
 }
 
-void table () {
+/* void table () {
   Serial.println("TABLE:");
   for (int i = 0; i < 6; i++) {
     Serial.print ("  Inventory at Pos "); Serial.print (i); Serial.print(" : Value: "); Serial.println(Inventory[i]);
   }
-}
+} */
 
-void printIPAddress(){
-  Serial.print("My IP address: ");
-  for (byte thisByte = 0; thisByte < 4; thisByte++) {
-    // print the value of each byte of the IP address:
-    Serial.print(Ethernet.localIP()[thisByte], DEC);
-    Serial.print(".");
-  }
-
-  Serial.println();
-}
 
 void EraseID() {
   //cleanup the array with a transponder --> only debugging
@@ -302,9 +283,10 @@ void EraseID() {
 }
 
 int SendHTTP(long ID, int status){
- if (client.connect("10.10.35.37",50000)){
-   Serial.println("connected"); Serial.println(""); 
+  client.stop();
 
+  if (client.connect("10.10.35.37",50000)){
+   Serial.println("connecting..."); Serial.println(""); 
    client.print("GET /zitx_lis?sap-client=100&payload=");
    client.print("%7B%22ID%22%3A%20%22");
    client.print(ID);
@@ -315,19 +297,9 @@ int SendHTTP(long ID, int status){
    client.println("Host: 10.10.35.37");
    client.println("Connection: close");
    client.println();// important need an empty line here 
-
- } else {
+  } else {
     // kf you didn't get a connection to the server:
     Serial.println("connection failed");
- }
- if (client.available()) {
-    char c = client.read();
-    Serial.print(c);
- }
-   if (!client.connected()) {
-    Serial.println();
-    Serial.println("disconnecting.");
-    client.stop();
+ 
   }
-
 } 
