@@ -300,7 +300,8 @@ int SendHTTP(long ID, int status){
    client.print(ID);
    client.print("%22%2C%20%22status%22%20%3A%20%22");
    client.print(status);
-   client.print("%22%7D");
+   client.print("%22%7D&status=");
+  client.print(status);
    client.println(" HTTP/1.1");
    client.println("Host: 10.10.35.37");
    client.println("Connection: close");
@@ -310,6 +311,7 @@ int SendHTTP(long ID, int status){
     Serial.println("connection failed");
     client.stop();
   }
+
 /* 
   if (client.available()) {
     char c = client.read();
