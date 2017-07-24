@@ -2,10 +2,12 @@
 
  /*   Loundry track Information System (LIS)                                                                                                                                                                                            
   *                                                                                                                                                                                                 
-  *                                                                                                                                                                                                 
-  *                                                                                                                                                                                                 
+  *     v.2017-07-20                                                                                                                                                                                             
+  *     Author: Mlampe                                                                                                                                                                                            
   *                                                                                                                                                                                                
   */
+
+
 #include <SoftwareSerial.h>
 #include <SeeedRFIDLib.h> 
 #include <SPI.h>
@@ -118,7 +120,7 @@ void loop() {
         Serial.println("Adding ID");
         maintenance = 0;
         AddID(found, ptr);
-        SendHTTP(Inventory[pos], Inventory[pos+1]);
+        //SendHTTP(Inventory[pos], Inventory[pos+1]); 
       } else if ((found == 1)&& (maintenance == 0)) {
         Serial.println("Updating ID");
         maintenance = 0;
@@ -281,20 +283,10 @@ void EraseID() {
 }
 
 int SendHTTP(long ID, int status){
-
-/*  if (Ethernet.begin(mac) == 0) {
-    Serial.println("Failed to configure Ethernet using DHCP");
-    // no point in carrying on, so do nothing forevermore:
-    LED.setPixelColor(0, 0, 0, 0);LED.show();delay(1000);
-    LED.setPixelColor(0, 255, 0, 0);LED.show();delay(1000);
-    LED.setPixelColor(0, 0, 0, 0);LED.show();delay(1000);
-    LED.setPixelColor(0, 255, 0, 0);LED.show();delay(1000);
-  }
-
-    LED.setPixelColor(0, 0, 0, 0);LED.show(); */
+  client.stop();
 
   if (client.connect("10.10.35.37",50000)){
-   Serial.println("connected"); Serial.println(""); 
+   Serial.println("connecting..."); Serial.println(""); 
    client.print("GET /zitx_lis?sap-client=100&payload=");
    client.print("%7B%22ID%22%3A%20%22");
    client.print(ID);
@@ -309,8 +301,9 @@ int SendHTTP(long ID, int status){
   } else {
     // kf you didn't get a connection to the server:
     Serial.println("connection failed");
-    client.stop();
+ 
   }
+<<<<<<< HEAD:array_indexer_v9.ino
 
 /* 
   if (client.available()) {
@@ -323,4 +316,6 @@ int SendHTTP(long ID, int status){
     client.stop();
   }  */
 
+=======
+>>>>>>> 7ea6aa3b864d7127066a69fcccf94f3b8fad456a:array_indexer_10.ino
 } 
