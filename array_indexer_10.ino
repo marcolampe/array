@@ -260,14 +260,6 @@ void Cleanup(){
   
 }
 
-/* void table () {
-  Serial.println("TABLE:");
-  for (int i = 0; i < 6; i++) {
-    Serial.print ("  Inventory at Pos "); Serial.print (i); Serial.print(" : Value: "); Serial.println(Inventory[i]);
-  }
-} */
-
-
 void EraseID() {
   //cleanup the array with a transponder --> only debugging
   memset(Inventory, 0, sizeof(Inventory));
@@ -303,19 +295,5 @@ int SendHTTP(long ID, int status){
     Serial.println("connection failed");
  
   }
-<<<<<<< HEAD:array_indexer_v9.ino
 
-/* 
-  if (client.available()) {
-    char c = client.read();
-    Serial.print(c);
-  } */
-/*     if (!client.connected()) {
-    Serial.println();
-    Serial.println("disconnecting.");
-    client.stop();
-  }  */
-
-=======
->>>>>>> 7ea6aa3b864d7127066a69fcccf94f3b8fad456a:array_indexer_10.ino
 } 
