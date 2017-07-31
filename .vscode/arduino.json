@@ -1,5 +1,5 @@
 {
     "board": "arduino:avr:uno",
     "port": "COM14",
-    "sketch": "array_indexer_final_v1.ino"
+    "sketch": "array_indexer_new_v1.ino"
 }
