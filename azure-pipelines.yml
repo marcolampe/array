@@ -10,7 +10,7 @@ steps:
 - script: mkdir output
   displayName: 'output folder'
 
-- script: arduino-builder -hardware "C:\Program Files (x86)\Arduino\hardware" -tools "C:\Program Files (x86)\Arduino\tools-builder" -tools "C:\Program Files (x86)\Arduino\hardware\tools\avr" -built-in-libraries "C:\Program Files (x86)\Arduino\libraries" -fqbn=arduino:avr:uno -build-path .\output Blink\Blink.ino
+- script: arduino-builder -hardware "C:\Program Files (x86)\Arduino\hardware" -tools "C:\Program Files (x86)\Arduino\tools-builder" -tools "C:\Program Files (x86)\Arduino\hardware\tools\avr" -built-in-libraries "C:\Program Files (x86)\Arduino\libraries" -fqbn=arduino:avr:uno -build-path .\output array\Blink.ino
   displayName: 'arduino build'
 - task: PublishPipelineArtifact@0
   displayName: artifacts
